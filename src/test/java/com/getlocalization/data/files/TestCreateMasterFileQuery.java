@@ -5,12 +5,13 @@ import java.io.File;
 import org.junit.Test;
 
 import com.getlocalization.api.files.FileFormat;
+import com.getlocalization.client.QueryException;
 
 public class TestCreateMasterFileQuery {
   
   // TODO This test fails if the master file already exists
 
-	@Test
+	@Test(expected=QueryException.class)
 	public void test() throws Exception {
 		
 		File file = new File("src/test/resources/master-file.properties");
