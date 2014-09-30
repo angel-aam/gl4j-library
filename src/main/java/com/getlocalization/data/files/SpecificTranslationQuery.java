@@ -39,7 +39,7 @@ public class SpecificTranslationQuery extends Query {
 			
 			byte[] file = getFile(url);
 			
-			translatedFile = File.createTempFile("getlocalization", ".zip");
+			translatedFile = File.createTempFile(masterFile, "");
 			FileOutputStream fos = new FileOutputStream(translatedFile);
 			fos.write(file);
 			fos.close();
