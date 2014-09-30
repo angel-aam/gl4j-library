@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.getlocalization.api.*;
 import com.getlocalization.api.files.*;
 import com.getlocalization.client.QueryException;
+import com.getlocalization.data.files.SpecificTranslationQuery;
 import com.getlocalization.data.files.TranslationsQuery;
 
 /**
@@ -102,6 +103,43 @@ public class GLTranslations {
 		{
 		  log.warn(null, e);
 			throw new GLException("Unable to download translations: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Pull a translated file from server . Note that request
+	 * may take some time as translated file is generated on the server-side and
+	 * depending of the load it's possible but unlikely that call immediately throws 
+	 * GLServerBusyException which means you should try again in a moment.
+	 * 
+	 * @param masterFile the file to get a translation
+	 * @param language the language to get the translation
+	 * @throws GLException, GLServerBusyException
+	 */
+	public File pull(String masterFile, String language) throws GLException, GLServerBusyException {
+		SpecificTranslationQuery query = new SpecificTranslationQuery(myProject.getProjectName(), masterFile, language);
+		query.setBasicAuth(myProject.getUsername(), myProject.getPassword());
+		
+		try {
+			query.doQuery();
+			
+			File translatedFile = query.getTranslatedFile();
+			
+			return translatedFile;
+		}
+		catch(QueryException e) {
+			if(e.getStatusCode() == 401)
+				throw new GLException("Authentication error, please check your username and password" + e.getMessage());
+			else
+				throw new GLException("Error when processing the query: " + e.getMessage());
+		}
+		catch(IOException io) {
+		  log.warn(null, io);
+			throw new GLException("Unable to save translation: " + io.getMessage());
+		}
+		catch(Exception e) {
+		  log.warn(null, e);
+			throw new GLException("Unable to download translation: " + e.getMessage());
 		}
 	}
 	
